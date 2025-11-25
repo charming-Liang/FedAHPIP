@@ -1,0 +1,67 @@
+clients:
+    type: simple_he
+    total_clients: 100
+    per_round: 100
+    encrypt_ratio: 0.02  # 统一的基础加密比例
+    random_mask: false
+    do_test: false
+    # 标签保护配置
+    label_protection: true
+    classifier_encrypt_boost: 1.5  # 分类层加密增强因子
+
+server:
+    address: 127.0.0.1
+    port: 8000
+    random_seed: 1
+    simulate_wall_time: true
+
+data:
+    datasource: NEU_CLS
+    partition_size: 1000
+    sampler: noniid
+    random_seed: 42
+
+trainer:
+    rounds: 50
+    max_concurrency: 1
+    target_accuracy: 0.95
+    model_name: lenet5
+    epochs: 2
+    batch_size: 128
+    optimizer: SGD
+    learning_rate: 0.01
+    momentum: 0.9
+    weight_decay: 0.0001
+    random_seed: 42
+
+algorithm:
+    type: fedavg
+
+results:
+    types: round, elapsed_time, accuracy, comm_overhead  # 移除 encryption_stats
+
+parameters:
+    model:
+        num_classes: 6
+    optimizer:
+        lr: 0.01
+        momentum: 0.9
+        weight_decay: 0.0001
+
+inversion_attack:
+    enable_attack: true
+    attack_type: "dlg"
+    attack_iterations: 100
+    learning_rate: 0.05
+    batch_size: 1
+
+communication:
+    track_overhead: true
+    report_interval: 1
+
+# 安全配置
+security:
+    verify_encryption_ratio: true
+    max_ratio_deviation: 0.05  # 允许的加密比例偏差
+    label_protection_enabled: true
+    unified_encryption_config: true  # 启用统一加密配置

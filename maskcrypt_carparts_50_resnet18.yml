@@ -1,0 +1,93 @@
+clients:
+  # Type
+  type: simple_he
+
+  # The total number of clients
+  total_clients: 100
+
+  # encrypt ratio - 针对ResNet调整
+  encrypt_ratio: 0.01
+  random_mask: False
+
+  # The number of clients selected in each round
+  per_round: 100
+
+  # Should the clients compute test accuracy locally?
+  do_test: false
+
+  # 标签保护配置 - 针对ResNet优化
+  label_protection: true
+  classifier_encrypt_boost: 1.8  # ResNet分类层增强更高
+
+server:
+  address: 127.0.0.1
+  port: 8003
+  random_seed: 1
+  simulate_wall_time: true
+
+data:
+  # The training and testing dataset - 使用Carparts-50数据集
+  datasource: Carparts-50
+
+  # Number of samples in each partition
+  partition_size: 30  # 减少样本数量适应较小数据集
+
+  # IID or non-IID?
+  sampler: noniid
+
+trainer:
+  # The maximum number of training rounds
+  rounds: 2
+
+  # The maximum number of clients running concurrently
+  max_concurrency: 2  # 减少并发数
+
+  # The target accuracy
+  target_accuracy: 0.5  # 降低目标精度
+
+  # The machine learning model
+  model_name: resnet_18
+
+  # 禁用预训练模型加载 - 避免与Carparts-50数据集不兼容
+  pretrained_model: false
+
+  # Number of epoches for local training in each communication round
+  epochs: 1  # 减少到1个epoch
+  batch_size: 16  # 减小batch size
+  optimizer: SGD
+
+  # ResNet特定配置 - 针对Carparts-50调整
+  learning_rate: 0.01
+  momentum: 0.9
+  weight_decay: 0.0001
+
+algorithm:
+  # Aggregation algorithm
+  type: fedavg
+
+results:
+  # Write the following parameter(s) into a CSV
+  types: round, elapsed_time, accuracy, comm_overhead, model_type
+
+parameters:
+  model:
+    num_classes: 50  # Carparts-50有50个类别
+    type: resnet_18
+
+  optimizer:
+      lr: 0.01
+      momentum: 0.9
+      weight_decay: 0.0001
+
+# 安全配置 - 针对大模型优化
+security:
+  verify_encryption_ratio: true
+  max_ratio_deviation: 0.08  # ResNet允许更大偏差
+  label_protection_enabled: true
+  model_aware_encryption: true
+
+# 性能优化配置
+performance:
+  use_gradient_checkpointing: false
+  mixed_precision: true
+  batch_size_adaptation: true
